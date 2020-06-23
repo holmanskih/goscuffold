@@ -14,6 +14,7 @@ const (
 )
 
 type ProjectCfg struct {
+	Path   string `yml:"path"`
 	Domain string `yml:"domain"`
 	Name   string `yml:"domain"`
 }
@@ -24,6 +25,7 @@ func (c *ProjectCfg) ProjectName() string {
 
 func (c ProjectCfg) Validate() error {
 	return validation.ValidateStruct(&c,
+		validation.Field(&c.Path, validation.Required),
 		validation.Field(&c.Domain, validation.Required, validation.In(DomainGitHub, DomainGitLab)),
 		validation.Field(&c.Name, validation.Required),
 	)

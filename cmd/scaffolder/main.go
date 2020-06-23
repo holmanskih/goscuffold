@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"goscuffold/config"
@@ -14,7 +16,7 @@ import (
 )
 
 var (
-	cfgPath = flag.String("cfg", "./testdata", "path to templates to scaffold")
+	cfgPath = flag.String("cfg", "./tmpl.config.yml", "path to templates to scaffold")
 )
 
 func main() {
@@ -22,13 +24,10 @@ func main() {
 
 	cfg := config.ReadConfig(*cfgPath)
 
-	data := map[string]interface{}{
-		"project_name": cfg.Project.ProjectName(),
-	}
-
-	err := RestoreTemplate("test.go", "main.go.tpl", data)
+	p := NewProject(&cfg)
+	err := p.Scaffold()
 	if err != nil {
-		log.Println(err)
+		log.Fatalf("failed to copy the scaffold project: %s", err)
 	}
 }
 
@@ -73,5 +72,28 @@ func RestoreTemplate(path, name string, data interface{}) error {
 		return err
 	}
 
+	return nil
+}
+
+type Project struct {
+	cfg *config.Cfg
+}
+
+func NewProject(cfg *config.Cfg) *Project {
+	return &Project{cfg: cfg}
+}
+
+// Scaffold scaffolds the bindata file templates
+func (p *Project) Scaffold() error {
+	for _, filePath := range templates.AssetNames() {
+		file := strings.TrimPrefix(filepath.ToSlash(filePath), p.cfg.Templates.Path)
+
+		file = filepath.Join(p.cfg.Project.Path, file)
+
+		err := RestoreTemplate(file+".go", filePath, p.cfg.Templates.Schema)
+		if err != nil {
+			return fmt.Errorf("failed to restore tmpl: %s", err)
+		}
+	}
 	return nil
 }

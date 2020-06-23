@@ -9,7 +9,8 @@ import (
 )
 
 type Cfg struct {
-	Project *ProjectCfg `yml:"project"`
+	Project   *ProjectCfg   `yml:"project"`
+	Templates *TemplatesCfg `yml:"templates"`
 }
 
 func (c Cfg) Validate() error {
