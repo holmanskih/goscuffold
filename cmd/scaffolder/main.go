@@ -87,10 +87,10 @@ func NewProject(cfg *config.Cfg) *Project {
 func (p *Project) Scaffold() error {
 	for _, filePath := range templates.AssetNames() {
 		file := strings.TrimPrefix(filepath.ToSlash(filePath), p.cfg.Templates.Path)
-
 		file = filepath.Join(p.cfg.Project.Path, file)
 
-		err := RestoreTemplate(file+".go", filePath, p.cfg.Templates.Schema)
+		name := strings.TrimSuffix(file, filepath.Ext(file))
+		err := RestoreTemplate(name, filePath, p.cfg.Templates.Schema)
 		if err != nil {
 			return fmt.Errorf("failed to restore tmpl: %s", err)
 		}
