@@ -1,10 +1,11 @@
-project:
-  path: "example"
+path: "example"
+
+git:
   domain: "github.com"
-  name: "scaffold"
+  project: "scaffold"
 
 templates:
   path: "env/templates/"
   schema:
-    "project_name": "some"
+    "project_name": "scaffold"
 

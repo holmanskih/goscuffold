@@ -9,13 +9,17 @@ import (
 )
 
 type Cfg struct {
-	Project   *ProjectCfg   `yml:"project"`
+	Path string `yml:"path"`
+
 	Templates *TemplatesCfg `yml:"templates"`
+	Git       *GitCfg       `yml:"git"`
 }
 
 func (c Cfg) Validate() error {
 	return validation.ValidateStruct(&c,
-		validation.Field(&c.Project, validation.Required),
+		validation.Field(&c.Path, validation.Required),
+		validation.Field(&c.Templates, validation.Required),
+		validation.Field(&c.Git, validation.Required),
 	)
 }
 
