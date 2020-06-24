@@ -8,27 +8,37 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
-
-	"goscuffold/config"
-	"goscuffold/templates"
 )
 
 type Project struct {
-	cfg *config.Cfg
+	domain  string
+	name    string
+	outPath string
+
+	tmplPath string
 }
 
-func NewProject(cfg *config.Cfg) *Project {
-	return &Project{cfg: cfg}
+func NewProject(domain, name, outPath, tmplPath string) *Project {
+	return &Project{
+		domain:   domain,
+		name:     name,
+		outPath:  outPath,
+		tmplPath: tmplPath,
+	}
 }
 
-// Scaffold scaffolds the bindata file templates
+// Scaffold scaffolds the bindata file tmpl
 func (p *Project) Scaffold() error {
-	for _, filePath := range templates.AssetNames() {
-		file := strings.TrimPrefix(filepath.ToSlash(filePath), p.cfg.Templates.Path)
-		file = filepath.Join(p.cfg.Path, file)
+	for _, fileName := range AssetNames() {
+		file := strings.TrimPrefix(filepath.ToSlash(fileName), p.tmplPath)
+		file = filepath.Join(p.outPath, file)
 
-		name := strings.TrimSuffix(file, filepath.Ext(file))
-		err := RestoreTemplate(name, filePath, p.cfg.Templates.Schema)
+		genPath := strings.TrimSuffix(file, filepath.Ext(file))
+
+		schema := map[string]interface{}{
+			"project_name": fmt.Sprintf("%s/%s", p.domain, p.name), // fixme when domain is null
+		}
+		err := RestoreTemplate(genPath, fileName, schema)
 		if err != nil {
 			return fmt.Errorf("failed to restore tmpl: %s", err)
 		}
@@ -37,7 +47,7 @@ func (p *Project) Scaffold() error {
 }
 
 func ExecuteTemplate(name string, data interface{}) (*bytes.Buffer, error) {
-	asset, err := templates.Asset(name)
+	asset, err := Asset(name)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +72,7 @@ func RestoreTemplate(path, name string, data interface{}) error {
 		return err
 	}
 
-	info, err := templates.AssetInfo(name)
+	info, err := AssetInfo(name)
 	if err != nil {
 		return err
 	}
