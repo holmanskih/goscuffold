@@ -1,0 +1,4 @@
+1. Add fully fractionate templates of scaffold service
+2. Add git integration
+3. Add conditional services scaffold on several flags (api, db, nats)
+

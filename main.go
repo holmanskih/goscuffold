@@ -1,9 +1,9 @@
 package main
 
 import (
+	"log"
 	"os"
 
-	"github.com/lancer-kit/armory/log"
 	"github.com/urfave/cli/v2"
 
 	"goscuffold/cmd"
@@ -15,6 +15,6 @@ func main() {
 	app.Commands = cmd.GetCommands()
 
 	if err := app.Run(os.Args); err != nil {
-		log.Get().WithError(err).Errorln("failed run app")
+		log.Fatalf("failed to run the app")
 	}
 }
