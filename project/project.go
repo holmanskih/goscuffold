@@ -14,29 +14,25 @@ type Project struct {
 	domain  string
 	name    string
 	outPath string
-
-	tmplPath string
 }
 
-func NewProject(domain, name, outPath, tmplPath string) *Project {
+func NewProject(domain, name, outPath string) *Project {
 	return &Project{
-		domain:   domain,
-		name:     name,
-		outPath:  outPath,
-		tmplPath: tmplPath,
+		domain:  domain,
+		name:    name,
+		outPath: outPath,
 	}
 }
 
 // Scaffold scaffolds the bindata file tmpl
 func (p *Project) Scaffold() error {
 	for _, fileName := range AssetNames() {
-		file := strings.TrimPrefix(filepath.ToSlash(fileName), p.tmplPath)
-		file = filepath.Join(p.outPath, file)
-
+		file := filepath.Join(p.outPath, fileName)
 		genPath := strings.TrimSuffix(file, filepath.Ext(file))
 
 		schema := map[string]interface{}{
 			"project_name": fmt.Sprintf("%s/%s", p.domain, p.name), // fixme when domain is null
+			"service_name": "service_name",                         // fixme
 		}
 		err := RestoreTemplate(genPath, fileName, schema)
 		if err != nil {

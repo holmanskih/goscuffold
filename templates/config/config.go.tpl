@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	ServiceName = {{.service_name}}
+	ServiceName = "{{.service_name}}"
 )
 
 // Cfg main structure of the app configuration.
