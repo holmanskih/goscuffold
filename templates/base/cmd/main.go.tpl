@@ -4,7 +4,9 @@ import "github.com/urfave/cli"
 
 func GetCommands() []cli.Command {
 	return []cli.Command{
+	    {{if .db}}
 		migrateCmd(),
+		{{end}}
 		serveCmd(),
 	}
 }

@@ -1,0 +1,10 @@
+target:
+  path: "./base"
+
+modules:
+  "api":
+    path: "./api"
+  "db":
+    path: "./db"
+  "base_uwe":
+    path: "./foobar"
