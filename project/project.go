@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,23 +12,47 @@ import (
 )
 
 type Project struct {
-	outPath string
-	schema  Schema
+	outPath    string
+	tmplData   ScaffoldTmplModules
+	modulesCfg TemplatesCfg
 }
 
 // Scaffold scaffolds the bindata file tmpl
-func (p *Project) Scaffold(tmplSchema map[string]interface{}) error {
-	dirName := "base"
-	assets := getAssetFromDir(dirName)
+func (p *Project) Scaffold() error {
+	// generate the base directory structure
+	err := p.scaffoldTmplDir(p.modulesCfg.Target.Path)
+	if err != nil {
+		return fmt.Errorf("failed to scaffold base dir: %s", err)
+	}
+
+	for tmplKey := range p.tmplData {
+		key, ok := tmplKey.(ScaffoldTmplKey)
+		if !ok {
+			continue
+		}
+		if p.tmplData[tmplKey] == true {
+			log.Printf("generate the template %s %v", tmplKey, p.tmplData[tmplKey])
+			module := p.modulesCfg.Modules[key]
+			err := p.scaffoldTmplDir(module.Path)
+			if err != nil {
+				return fmt.Errorf("failed to scaffold base dir: %s", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (p *Project) scaffoldTmplDir(dir string) error {
+	assets := getAssetFromDir(dir)
 	for _, fileName := range assets {
-		relPath, err := filepath.Rel(dirName, fileName)
+		relPath, err := filepath.Rel(dir, fileName)
 		if err != nil {
 			return fmt.Errorf("failed to get rel path: %s", err)
 		}
 		genRawPath := filepath.Join(p.outPath, relPath)
 		genPath := strings.TrimSuffix(genRawPath, filepath.Ext(genRawPath))
 
-		err = RestoreTemplate(genPath, fileName, tmplSchema)
+		err = RestoreTemplate(genPath, fileName, p.tmplData)
 		if err != nil {
 			return fmt.Errorf("failed to restore tmpl: %s", err)
 		}
@@ -42,7 +67,7 @@ func getAssetFromDir(dir string) []string {
 		if assetRootDirName == "" {
 			return nil
 		}
-		if "base" == filepath.Base(assetRootDirName) {
+		if dir == filepath.Base(assetRootDirName) {
 			paths = append(paths, tmplName)
 		}
 	}
@@ -93,9 +118,10 @@ func RestoreTemplate(path, name string, data interface{}) error {
 	return nil
 }
 
-func NewProject(outPath string, schema Schema) *Project {
+func NewProject(outPath string, cfg TemplatesCfg, data ScaffoldTmplModules) *Project {
 	return &Project{
-		outPath: outPath,
-		schema:  schema,
+		outPath:    outPath,
+		modulesCfg: cfg,
+		tmplData:   data,
 	}
 }

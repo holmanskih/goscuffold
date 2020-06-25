@@ -1,10 +1,10 @@
 target:
-  path: "./base"
+  path: "base"
 
 modules:
-  "api":
-    path: "./api"
+  "api": # this key is used to target and populate the template part to the base part
+    path: "api"
   "db":
-    path: "./db"
-  "base_uwe":
-    path: "./foobar"
+    path: "db"
+  "simple_worker":
+    path: "foobar"

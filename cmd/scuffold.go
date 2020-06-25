@@ -32,24 +32,21 @@ func scaffoldCommand() *cli.Command {
 			log.Println(c.String(FlagGoModules) != "")
 
 			schema := project.ReadSchema(c.String(FlagSchemaPath))
-			p := project.NewProject(c.String(FlagOutputPath), schema)
-
 			var projectName string
 			if c.String(FlagDomain) == "" {
 				projectName = c.String(FlagName)
 			} else {
 				projectName = fmt.Sprintf("%s/%s", c.String(FlagDomain), c.String(FlagName))
 			}
-
-			scaffoldSchema := map[string]interface{}{
-				"project_name":  projectName,
-				"api":           c.Bool(FlagAPIService),
-				"db":            c.Bool(FlagDBService),
-				"simple_worker": c.Bool(FlagSimpleWorkerService),
-				"service_name":  "service_name",
+			scaffoldSchema := project.ScaffoldTmplModules{
+				project.ScaffoldProjectNameKey: projectName,
+				project.ModuleKeyAPI:           c.Bool(FlagAPIService),
+				project.ModuleKeyDB:            c.Bool(FlagDBService),
+				project.ModuleKeySimpleWorker:  c.Bool(FlagSimpleWorkerService),
 			}
+			p := project.NewProject(c.String(FlagOutputPath), schema, scaffoldSchema)
 
-			err := p.Scaffold(scaffoldSchema)
+			err := p.Scaffold()
 			if err != nil {
 				return fmt.Errorf("failed to scaffold project: %s", err)
 			}
