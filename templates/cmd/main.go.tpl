@@ -1,18 +1,11 @@
 package cmd
 
-import (
-	"github.com/urfave/cli"
-
-	"{{.project_name}}/config"
-)
+import "github.com/urfave/cli"
 
 func GetCommands() []cli.Command {
 	return []cli.Command{
-		{
-			Name:   "serve",
-			Usage:  "starts " + config.ServiceName + " workers",
-			Action: serveAction,
-		},
+		migrateCmd(),
+		serveCmd(),
 	}
 }
 
