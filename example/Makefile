@@ -14,7 +14,7 @@ gen-with-gomod-db:
 	./scaffolder gen -o="./project" -d="github.com" -n="holmanskih/project" -p="github.com/holmanskih/project" --db
 
 gen:
-	./scaffolder gen -o="./project" -n="holmanskih/project" --db
+	./scaffolder gen -o="./project" -n="holmanskih/project"
 
 clean:
 	rm -r ./project && rm ./scaffolder
