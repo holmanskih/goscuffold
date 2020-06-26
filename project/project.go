@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,30 +12,47 @@ import (
 )
 
 type Project struct {
-	domain  string
-	name    string
-	outPath string
-}
-
-func NewProject(domain, name, outPath string) *Project {
-	return &Project{
-		domain:  domain,
-		name:    name,
-		outPath: outPath,
-	}
+	outPath    string
+	tmplData   ScaffoldTmplModules
+	modulesCfg TemplatesCfg
 }
 
 // Scaffold scaffolds the bindata file tmpl
 func (p *Project) Scaffold() error {
-	for _, fileName := range AssetNames() {
-		file := filepath.Join(p.outPath, fileName)
-		genPath := strings.TrimSuffix(file, filepath.Ext(file))
+	// generate the base directory structure
+	err := p.scaffoldTmplDir(p.modulesCfg.Target.Path)
+	if err != nil {
+		return fmt.Errorf("failed to scaffold base dir: %s", err)
+	}
 
-		schema := map[string]interface{}{
-			"project_name": fmt.Sprintf("%s/%s", p.domain, p.name), // fixme when domain is null
-			"service_name": "service_name",                         // fixme
+	for tmplKey := range p.tmplData {
+		key, ok := tmplKey.(ScaffoldTmplKey)
+		if !ok {
+			continue
 		}
-		err := RestoreTemplate(genPath, fileName, schema)
+		if p.tmplData[tmplKey] == true {
+			log.Printf("generate the template %s %v", tmplKey, p.tmplData[tmplKey])
+			module := p.modulesCfg.Modules[key]
+			err := p.scaffoldTmplDir(module.Path)
+			if err != nil {
+				return fmt.Errorf("failed to scaffold base dir: %s", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (p *Project) scaffoldTmplDir(dir string) error {
+	assets := getAssetFromDir(dir)
+	for _, fileName := range assets {
+		relPath, err := filepath.Rel(dir, fileName)
+		if err != nil {
+			return fmt.Errorf("failed to get rel path: %s", err)
+		}
+		genRawPath := filepath.Join(p.outPath, relPath)
+		genPath := strings.TrimSuffix(genRawPath, filepath.Ext(genRawPath))
+
+		err = RestoreTemplate(genPath, fileName, p.tmplData)
 		if err != nil {
 			return fmt.Errorf("failed to restore tmpl: %s", err)
 		}
@@ -42,7 +60,21 @@ func (p *Project) Scaffold() error {
 	return nil
 }
 
-func ExecuteTemplate(name string, data interface{}) (*bytes.Buffer, error) {
+func getAssetFromDir(dir string) []string {
+	var paths = make([]string, 0)
+	for _, tmplName := range AssetNames() {
+		assetRootDirName := strings.Split(tmplName, "/")[0]
+		if assetRootDirName == "" {
+			return nil
+		}
+		if dir == filepath.Base(assetRootDirName) {
+			paths = append(paths, tmplName)
+		}
+	}
+	return paths
+}
+
+func executeTemplate(name string, data interface{}) (*bytes.Buffer, error) {
 	asset, err := Asset(name)
 	if err != nil {
 		return nil, err
@@ -63,7 +95,7 @@ func ExecuteTemplate(name string, data interface{}) (*bytes.Buffer, error) {
 }
 
 func RestoreTemplate(path, name string, data interface{}) error {
-	buf, err := ExecuteTemplate(name, data)
+	buf, err := executeTemplate(name, data)
 	if err != nil {
 		return err
 	}
@@ -84,4 +116,12 @@ func RestoreTemplate(path, name string, data interface{}) error {
 	}
 
 	return nil
+}
+
+func NewProject(outPath string, cfg TemplatesCfg, data ScaffoldTmplModules) *Project {
+	return &Project{
+		outPath:    outPath,
+		modulesCfg: cfg,
+		tmplData:   data,
+	}
 }

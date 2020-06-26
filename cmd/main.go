@@ -10,6 +10,14 @@ func GetCommands() []*cli.Command {
 	}
 }
 
+const FlagSchemaPath = "schema"
+
 func GetFlags() []cli.Flag {
-	return []cli.Flag{}
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:   FlagSchemaPath,
+			Value:  "../templates/schema.yml",
+			Hidden: true,
+		},
+	}
 }

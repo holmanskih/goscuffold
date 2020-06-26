@@ -5,9 +5,10 @@ import (
 
 	"github.com/go-ozzo/ozzo-validation"
 	"github.com/lancer-kit/armory/log"
-	"github.com/lancer-kit/armory/natsx"
 	"github.com/lancer-kit/uwe/v2"
+	{{if .api}}
 	"github.com/lancer-kit/uwe/v2/presets/api"
+	{{end}}
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
@@ -16,10 +17,13 @@ const ServiceName = "service-scaffold"
 
 // Cfg main structure of the app configuration.
 type Cfg struct {
+    {{if .api}}
 	Api     api.Config   `json:"api" yaml:"api"`
+	{{end}}
+
+	{{if .db}}
 	DB      DBCfg        `json:"db" yaml:"db"`           // DB is a database connection string.
-	CouchDB string       `json:"couchdb" yaml:"couchdb"` // CouchDB is a couchdb url connection string.
-	NATS    natsx.Config `json:"nats" yaml:"nats"`
+	{{end}}
 	Log     log.Config   `json:"log" yaml:"log"`
 
 	DevMode             bool `json:"dev_mode" yaml:"dev_mode"`
@@ -32,12 +36,15 @@ type Cfg struct {
 
 func (cfg Cfg) Validate() error {
 	return validation.ValidateStruct(&cfg,
+	    {{if .db}}
 		validation.Field(&cfg.DB, validation.Required),
-		validation.Field(&cfg.ServicesInitTimeout, validation.Required),
-		//uncomment this if you want to use CouchDB
-		//validation.Field(&cfg.CouchDB, validation.Required),
+		{{end}}
+
+		{{if .api}}
 		validation.Field(&cfg.Api, validation.Required),
-		validation.Field(&cfg.NATS, validation.Required),
+		{{end}}
+
+		validation.Field(&cfg.ServicesInitTimeout, validation.Required),
 		validation.Field(&cfg.Workers, &WorkerExistRule{
 			AvailableWorkers: AvailableWorkers,
 		}),
@@ -50,6 +57,7 @@ func (cfg Cfg) FillDefaultWorkers() {
 	}
 }
 
+{{if .db}}
 type DBCfg struct {
 	ConnURL     string `json:"conn_url" yaml:"conn_url"` //The database connection string.
 	InitTimeout int    `json:"dbInitTimeout" yaml:"init_timeout"`
@@ -64,6 +72,7 @@ func (cfg DBCfg) Validate() error {
 		validation.Field(&cfg.InitTimeout, validation.Required),
 	)
 }
+{{end}}
 
 func ReadConfig(path string) Cfg {
 	rawConfig, err := ioutil.ReadFile(path)

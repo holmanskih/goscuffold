@@ -14,13 +14,17 @@ import (
 	"{{.project_name}}/dbschema"
 )
 
+type initModule string
+
+
 const flagConfig = "config"
 const defaultInitInterval = 5 * time.Second
 
 func Init(c *cli.Context) *config.Cfg {
 	var initConfigs = map[initModule]func(*config.Cfg, *logrus.Entry) error{
+	    {{if .db}}
 		DB:   initDatabase,
-		NATS: initNATS,
+		{{end}}
 	}
 
 	cfg := config.ReadConfig(c.GlobalString(flagConfig))
@@ -57,6 +61,7 @@ func Init(c *cli.Context) *config.Cfg {
 
 	wg.Wait()
 
+    {{if .db}}
 	if cfg.DB.AutoMigrate {
 		count, err := dbschema.Migrate(cfg.DB.ConnURL, "up")
 		if err != nil {
@@ -66,6 +71,7 @@ func Init(c *cli.Context) *config.Cfg {
 
 		log.Default.Info(fmt.Sprintf("Applied %d %s migration", count, "up"))
 	}
+	{{end}}
 
 	return &cfg
 }

@@ -15,6 +15,6 @@ func main() {
 	app.Commands = cmd.GetCommands()
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalf("failed to run the app")
+		log.Fatalf("failed to run the app: %s", err)
 	}
 }
