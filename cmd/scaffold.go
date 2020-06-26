@@ -28,9 +28,6 @@ func scaffoldCommand() *cli.Command {
 		Name:  "gen",
 		Usage: "gen scaffold",
 		Action: func(c *cli.Context) error {
-			log.Println("scaffolding project")
-			log.Println(c.String(FlagGoModules) != "")
-
 			schema := project.ReadSchema(c.String(FlagSchemaPath))
 			var projectName string
 			if c.String(FlagDomain) == "" {
@@ -38,6 +35,8 @@ func scaffoldCommand() *cli.Command {
 			} else {
 				projectName = fmt.Sprintf("%s/%s", c.String(FlagDomain), c.String(FlagName))
 			}
+			log.Printf("scaffolding project %s", projectName)
+
 			scaffoldSchema := project.ScaffoldTmplModules{
 				project.ScaffoldProjectNameKey: projectName,
 				project.ModuleKeyAPI:           c.Bool(FlagAPIService),
@@ -51,9 +50,9 @@ func scaffoldCommand() *cli.Command {
 				return fmt.Errorf("failed to scaffold project: %s", err)
 			}
 
-			if c.String(FlagGoModules) != "" {
-				log.Printf("running go mod init %s", c.String(FlagGoModules))
-				err = execInScaffoldPath(c, "go", "mod", "init", c.String(FlagGoModules))
+			if c.Bool(FlagGoModules) {
+				log.Printf("running go mod init %s", projectName)
+				err = execInScaffoldPath(c, "go", "mod", "init", projectName)
 				if err != nil {
 					return fmt.Errorf("failed to init go modules: %s", err)
 				}
@@ -67,9 +66,8 @@ func scaffoldCommand() *cli.Command {
 			return nil
 		},
 		Flags: []cli.Flag{
-			&cli.StringFlag{
+			&cli.BoolFlag{
 				Name:     FlagGoModules,
-				Aliases:  []string{"p"},
 				Usage:    "Initializes the go modules with module name in scaffold project",
 				Required: false,
 			},
@@ -85,7 +83,6 @@ func scaffoldCommand() *cli.Command {
 				Aliases:  []string{"d"},
 				Usage:    "Specifies project scaffold domain",
 				Required: false,
-				Value:    "github.com",
 			},
 			&cli.StringFlag{
 				Name:     FlagName,

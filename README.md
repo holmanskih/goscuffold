@@ -18,7 +18,7 @@ The whole scaffold project uses these modules structure:
 Templates are use [lancer-kit](https://github.com/lancer-kit) `armory` package for DB and log management and
 `uwe/v2` package to provider worker pool functionality in the project.
 
-The scaffolding system provides 3 versions of scaffolding:
+#### The scaffolding system provides 3 versions of scaffolding:
 
 1. Base \
     It contains: 
@@ -41,7 +41,9 @@ The scaffolding system provides 3 versions of scaffolding:
 
 4. Sime uwe `flag --base_uwe` \
    It adds and empty uwe worker to the projects structure
-   
+
+The scaffolder may generate the go mods with project name and tidy them on `--gomods` flag.
+
 ## Example
 ```
 go get github.com/holmanskih/scaffolder
@@ -60,7 +62,7 @@ scaffolder [global options] command [command options] [arguments...]
 |----------------------------|-----------|-------------------------------------------------------------------|-----------------------|
 |`--gomods`                  | no        | Initializes the go modules with module name in scaffold project   | `false`               |
 |`--output value, -o value`  | yes       | Specifies output dir to scaffold the project                      | `"./out"`             |
-|`--domain value, -d value`  | no        | Specifies project scaffold domain                                 | `"github.com"`        |
+|`--domain value, -d value`  | no        | Specifies project scaffold domain                                 |          -            |
 |`--name value, -n value`    | yes       | Specifies project scaffold name                                   | `"scaffold/project"`  |
 |`--api`                     | no        | Specifies generation of optional API service logic                | `false`               |
 |`--db`                      | no        | Specifies generation of optional DB service logic                 | `false`               |
