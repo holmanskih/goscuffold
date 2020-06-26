@@ -56,15 +56,15 @@ scaffolder [global options] command [command options] [arguments...]
 
 `Gen` cmd - generates the scaffold project contains following options that described in the table:
 
-Option                      | Required  | Description                                                       | Default value         |
-             ---            |    ---    |                              ---                                  |         ---           |
-`--gomods`                  | no        | Initializes the go modules with module name in scaffold project   | `false`               |
-`--output value, -o value`  | yes       | Specifies output dir to scaffold the project                      | `"./out"`             |
-`--domain value, -d value`  | no        | Specifies project scaffold domain                                 | `"github.com"`        |
-`--name value, -n value`    | yes       | Specifies project scaffold name                                   | `"scaffold/project"`  |
-`--api`                     | no        | Specifies generation of optional API service logic                | `false`               |
-`--db`                      | no        | Specifies generation of optional DB service logic                 | `false`               |
-`--base_uwe`                | no        | Specifies generation of optional simple uwe worker logic          | `false`               |
+|Option                      | Required  | Description                                                       | Default value         |
+|----------------------------|-----------|-------------------------------------------------------------------|-----------------------|
+|`--gomods`                  | no        | Initializes the go modules with module name in scaffold project   | `false`               |
+|`--output value, -o value`  | yes       | Specifies output dir to scaffold the project                      | `"./out"`             |
+|`--domain value, -d value`  | no        | Specifies project scaffold domain                                 | `"github.com"`        |
+|`--name value, -n value`    | yes       | Specifies project scaffold name                                   | `"scaffold/project"`  |
+|`--api`                     | no        | Specifies generation of optional API service logic                | `false`               |
+|`--db`                      | no        | Specifies generation of optional DB service logic                 | `false`               |
+|`--base_uwe`                | no        | Specifies generation of optional simple uwe worker logic          | `false`               |
 
 Usage of CLI and its options described in [/example](https://github.com/holmanskih/scaffolder/blob/master/example/Makefile)
 
